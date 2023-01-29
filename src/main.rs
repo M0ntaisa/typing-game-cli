@@ -1,8 +1,12 @@
 use std::io;
+use rand::prelude::*;
 
 fn main() {
-    let words = vec!["hello", "world", "typing", "game"];
+    let mut words = vec!["hello", "world", "typing", "game"];
     let mut score = 0;
+
+    let mut rng = thread_rng();
+    words.shuffle(&mut rng);
 
     for word in words {
         println!("Type the word: {}", word);
