@@ -1,8 +1,39 @@
 use std::io;
 use rand::prelude::*;
+use serde::Deserialize;
+use tokio;
+use reqwest::Client;
+use serde_json::from_str;
 
-fn main() {
-    let mut words = vec!["hello", "world", "typing", "game"];
+#[derive(Deserialize)]
+struct ApiResponse {
+    words : Vec<String>
+}
+
+#[tokio::main]
+async fn main() {
+    let client = Client::new();
+    let res = client
+        .get("https://random-word-api.herokuapp.com/all")
+        .send()
+        .await
+        .unwrap();
+
+    let body = match res.text().await{
+        Ok(body) => body,
+        Err(e) => {
+            println!("Error: {:?}", e);
+            return;
+        }
+    };
+    let data: ApiResponse = match from_str(&body) {
+        Ok(data) => data,
+        Err(e) => {
+            println!("Error: {:?}", e);
+            return;
+        }
+    };
+    let mut words = data.words.into_iter().take(5).collect::<Vec<String>>();
     let mut score = 0;
 
     let mut rng = thread_rng();
@@ -35,5 +66,4 @@ fn main() {
 }
 
 // TODO 
-// make it loop
-// use api for the words
+// fix the err
